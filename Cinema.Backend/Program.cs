@@ -1,4 +1,7 @@
 
+using Cinema.DAL.Context;
+using Microsoft.EntityFrameworkCore;
+
 namespace Cinema.Backend
 {
     public class Program
@@ -10,9 +13,25 @@ namespace Cinema.Backend
             // Add services to the container.
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+      
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+
+            //FOR PostgreSQL
+            builder.Services.AddEntityFrameworkNpgsql().AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseNpgsql(builder.Configuration.GetConnectionString("Put here connection to Db"));
+            });
+
+
+
+            // FOR MS SQL
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("Put here connection to Db"));
+            });
+
 
             var app = builder.Build();
 
