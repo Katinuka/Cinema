@@ -1,6 +1,8 @@
 
+using Cinema.DAL;
 using Cinema.DAL.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cinema.Backend
 {
@@ -17,21 +19,20 @@ namespace Cinema.Backend
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-
             //FOR PostgreSQL
-            builder.Services.AddEntityFrameworkNpgsql().AddDbContext<ApplicationDbContext>(options =>
-            {
-                options.UseNpgsql(builder.Configuration.GetConnectionString("Put here connection to Db"));
-            });
-
-
-
-            // FOR MS SQL
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("Put here connection to Db"));
+                options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresDbConnection"));
             });
 
+            // FOR MS SQL
+            //builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            //{
+            //    options.UseSqlServer(builder.Configuration.GetConnectionString("Put here connection to Db"));
+            //});
+
+
+            builder.Services.AddScoped(provider => new UnitOfWork(provider.GetRequiredService<ApplicationDbContext>()));
 
             var app = builder.Build();
 

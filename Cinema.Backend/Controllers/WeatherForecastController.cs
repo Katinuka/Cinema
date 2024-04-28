@@ -1,3 +1,4 @@
+using Cinema.DAL;
 using Cinema.DAL.Context;
 using Cinema.DAL.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -16,20 +17,69 @@ namespace Cinema.Backend.Controllers
 
 
         private readonly ILogger<WeatherForecastController> _logger;
-        private readonly ApplicationDbContext _applicationDbContext;
+        private readonly UnitOfWork _unitOfWork;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, 
-            ApplicationDbContext applicationDbContext)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger,
+            UnitOfWork unitOfWork)
         {
             _logger = logger;
-            _applicationDbContext = applicationDbContext;
+            _unitOfWork = unitOfWork;
         }
 
 
         [HttpGet("GetMovies")]
-        public async Task<List<Movie>> GetMoviesAsync() => await _applicationDbContext.Movies.Include(c=>c.Category).ToListAsync();
+        public async Task<List<Movie>> GetMoviesAsync() => await _unitOfWork.MovieRepository.Get().ToListAsync();
 
 
+        [HttpPost("AddMovie")]
+        public async Task<IActionResult> AddMovieAsync([FromBody] Movie movie)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await _unitOfWork.MovieRepository.InsertAsync(movie);
+            await _unitOfWork.SaveAsync();
+            return Ok();
+        }
+
+
+        [HttpDelete("DeleteMovie/{id}")]
+        public async Task<IActionResult> DeleteMovieAsync(int id)
+        {
+            var movie = await _unitOfWork.MovieRepository.GetByIDAsync(id);
+            if (movie == null)
+            {
+                return NotFound();
+            }
+
+            await _unitOfWork.MovieRepository.DeleteAsync(id);
+            return Ok();
+        }
+
+        [HttpPut("UpdateMovie/{id}")]
+        public async Task<IActionResult> UpdateMovieAsync(int id, [FromBody] Movie updatedMovie)
+        {
+            if (id != updatedMovie.Id)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                await _unitOfWork.MovieRepository.UpdateAsync(updatedMovie);
+                return Ok();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (await _unitOfWork.MovieRepository.GetByIDAsync(id) == null)
+                {
+                    return NotFound();
+                }
+                throw;
+            }
+        }
 
 
 
