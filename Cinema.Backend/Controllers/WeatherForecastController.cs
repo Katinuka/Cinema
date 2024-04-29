@@ -27,60 +27,7 @@ namespace Cinema.Backend.Controllers
         }
 
 
-        [HttpGet("GetMovies")]
-        public async Task<List<Movie>> GetMoviesAsync() => await _unitOfWork.MovieRepository.Get().ToListAsync();
-
-
-        [HttpPost("AddMovie")]
-        public async Task<IActionResult> AddMovieAsync([FromBody] Movie movie)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            await _unitOfWork.MovieRepository.InsertAsync(movie);
-            await _unitOfWork.SaveAsync();
-            return Ok();
-        }
-
-
-        [HttpDelete("DeleteMovie/{id}")]
-        public async Task<IActionResult> DeleteMovieAsync(int id)
-        {
-            var movie = await _unitOfWork.MovieRepository.GetByIDAsync(id);
-            if (movie == null)
-            {
-                return NotFound();
-            }
-
-            await _unitOfWork.MovieRepository.DeleteAsync(id);
-            return Ok();
-        }
-
-        [HttpPut("UpdateMovie/{id}")]
-        public async Task<IActionResult> UpdateMovieAsync(int id, [FromBody] Movie updatedMovie)
-        {
-            if (id != updatedMovie.Id)
-            {
-                return BadRequest();
-            }
-
-            try
-            {
-                await _unitOfWork.MovieRepository.UpdateAsync(updatedMovie);
-                return Ok();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (await _unitOfWork.MovieRepository.GetByIDAsync(id) == null)
-                {
-                    return NotFound();
-                }
-                throw;
-            }
-        }
-
+     
 
 
         //[HttpGet(Name = "GetWeatherForecast")]
