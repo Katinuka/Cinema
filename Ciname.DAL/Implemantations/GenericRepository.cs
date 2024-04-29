@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Cinema.DAL
+namespace Cinema.DAL.Implemantations
 {
     public class GenericRepository<TEntity> where TEntity : class
     {
@@ -18,7 +18,7 @@ namespace Cinema.DAL
         public GenericRepository(ApplicationDbContext context)
         {
             this.context = context;
-            this.dbSet = context.Set<TEntity>();
+            dbSet = context.Set<TEntity>();
         }
 
         public virtual IQueryable<TEntity> Get(
