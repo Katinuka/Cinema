@@ -2,65 +2,66 @@
 using Cinema.DAL;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Cinema.DAL.Implemantations;
 
 namespace Cinema.Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoryController : ControllerBase
+    public class GenreController : ControllerBase
     {
         private readonly UnitOfWork _unitOfWork;
 
-        public CategoryController(UnitOfWork unitOfWork)
+        public GenreController(UnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
 
         [HttpGet("GetCategories")]
-        public async Task<List<Category>> GetCategoriesAsync() => await _unitOfWork.CategoryRepository.Get().ToListAsync();
+        public async Task<List<Genre>> GetCategoriesAsync() => await _unitOfWork.GenreRepository.Get().ToListAsync();
 
-        [HttpPost("AddCategory")]
-        public async Task<IActionResult> AddCategoryAsync([FromBody] Category category)
+        [HttpPost("AddGanre")]
+        public async Task<IActionResult> AddGanreAsync([FromBody] Genre genre)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            await _unitOfWork.CategoryRepository.InsertAsync(category);
+            await _unitOfWork.GenreRepository.InsertAsync(genre);
             await _unitOfWork.SaveAsync();
             return Ok();
         }
 
-        [HttpDelete("DeleteCategory/{id}")]
-        public async Task<IActionResult> DeleteCategoryAsync(int id)
+        [HttpDelete("DeleteGanre/{id}")]
+        public async Task<IActionResult> DeleteGanreAsync(int id)
         {
-            var category = await _unitOfWork.CategoryRepository.GetByIDAsync(id);
+            var category = await _unitOfWork.GenreRepository.GetByIDAsync(id);
             if (category == null)
             {
                 return NotFound();
             }
 
-            await _unitOfWork.CategoryRepository.DeleteAsync(id);
+            await _unitOfWork.GenreRepository.DeleteAsync(id);
             return Ok();
         }
 
-        [HttpPut("UpdateCategory/{id}")]
-        public async Task<IActionResult> UpdateCategoryAsync(int id, [FromBody] Category updatedCategory)
+        [HttpPut("UpdateGanre/{id}")]
+        public async Task<IActionResult> UpdateGanreAsync(int id, [FromBody] Genre updatedGenre)
         {
-            if (id != updatedCategory.Id)
+            if (id != updatedGenre.Id)
             {
                 return BadRequest();
             }
 
             try
             {
-                await _unitOfWork.CategoryRepository.UpdateAsync(updatedCategory);
+                await _unitOfWork.GenreRepository.UpdateAsync(updatedGenre);
                 return Ok();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (await _unitOfWork.CategoryRepository.GetByIDAsync(id) == null)
+                if (await _unitOfWork.GenreRepository.GetByIDAsync(id) == null)
                 {
                     return NotFound();
                 }

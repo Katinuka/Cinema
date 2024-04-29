@@ -1,8 +1,15 @@
 
 using Cinema.DAL;
 using Cinema.DAL.Context;
+using Cinema.DAL.Implemantations;
+using Cinema.DAL.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Diagnostics.SymbolStore;
+using System.Text;
 
 namespace Cinema.Backend
 {
@@ -12,31 +19,25 @@ namespace Cinema.Backend
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+
 
             builder.Services.AddControllers();
-      
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            //FOR PostgreSQL
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresDbConnection"));
             });
 
-            // FOR MS SQL
-            //builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            //{
-            //    options.UseSqlServer(builder.Configuration.GetConnectionString("Put here connection to Db"));
-            //});
-
+            builder.Services.AddIdentity<ApplicationUser,IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
 
             builder.Services.AddScoped(provider => new UnitOfWork(provider.GetRequiredService<ApplicationDbContext>()));
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -45,6 +46,8 @@ namespace Cinema.Backend
 
             app.UseHttpsRedirection();
 
+       
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
