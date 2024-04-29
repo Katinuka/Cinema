@@ -1,6 +1,6 @@
 #  SoftServe Practice 
 
-**Thema: Cinema
+**Thema: Cinema**
 
 **Technologies Stack**
 
