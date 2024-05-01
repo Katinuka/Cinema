@@ -12,18 +12,18 @@ namespace Cinema.DAL.Implemantations
 {
     public class GenericRepository<TEntity> where TEntity : class
     {
-        internal ApplicationDbContext context;
+        internal ApplicationDbContext _context;
         internal DbSet<TEntity> dbSet;
 
         public GenericRepository(ApplicationDbContext context)
         {
-            this.context = context;
-            dbSet = context.Set<TEntity>();
+            this._context = context;
+            this.dbSet = context.Set<TEntity>();
         }
 
-        public virtual IQueryable<TEntity> Get(
-            Expression<Func<TEntity, bool>> filter = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+        public virtual async Task<IEnumerable<TEntity>> Get(
+            Expression<Func<TEntity, bool>>? filter = null,
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
             string includeProperties = "")
         {
             IQueryable<TEntity> query = dbSet;
@@ -41,12 +41,9 @@ namespace Cinema.DAL.Implemantations
 
             if (orderBy != null)
             {
-                return orderBy(query);
+                return await orderBy(query).ToListAsync();
             }
-            else
-            {
-                return query;
-            }
+            return await query.ToListAsync();
         }
 
         public virtual TEntity? GetByID(object id)
@@ -64,27 +61,28 @@ namespace Cinema.DAL.Implemantations
             dbSet.Add(entity);
         }
 
-        public virtual ValueTask<EntityEntry<TEntity>> InsertAsync(TEntity entity)
+        public virtual async Task InsertAsync(TEntity entity)
         {
-            return dbSet.AddAsync(entity);
+            await dbSet.AddAsync(entity);
         }
 
         public virtual void Delete(object id)
         {
-            TEntity? entityToDelete = dbSet.Find(id);
+            var entityToDelete = dbSet.Find(id);
             Delete(entityToDelete);
+            _context.SaveChanges();
         }
 
-        public virtual async Task DeleteAsync(object id)
+        public virtual async Task DeleteAsync(object? id)
         {
-            TEntity entityToDelete = await dbSet.FindAsync(id);
+            var entityToDelete = await dbSet.FindAsync(id);
             Delete(entityToDelete);
-            await context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
 
-        public virtual void Delete(TEntity entityToDelete)
+        public virtual void Delete(TEntity? entityToDelete)
         {
-            if (context.Entry(entityToDelete).State == EntityState.Detached)
+            if (_context.Entry(entityToDelete).State == EntityState.Detached)
             {
                 dbSet.Attach(entityToDelete);
             }
@@ -95,14 +93,15 @@ namespace Cinema.DAL.Implemantations
         public virtual void Update(TEntity entityToUpdate)
         {
             dbSet.Attach(entityToUpdate);
-            context.Entry(entityToUpdate).State = EntityState.Modified;
+            _context.Entry(entityToUpdate).State = EntityState.Modified;
+            _context.SaveChanges();
         }
 
-        public async Task UpdateAsync(TEntity entityToUpdate)
+        public virtual async Task UpdateAsync(TEntity entityToUpdate)
         {
             dbSet.Attach(entityToUpdate);
-            context.Entry(entityToUpdate).State = EntityState.Modified;
-            await context.SaveChangesAsync();
+            _context.Entry(entityToUpdate).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
         }
     }
 }
