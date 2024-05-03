@@ -12,21 +12,21 @@ namespace Cinema.DAL.Implemantations
 {
     public class GenericRepository<TEntity> where TEntity : class
     {
-        internal ApplicationDbContext context;
-        internal DbSet<TEntity> dbSet;
+        protected ApplicationDbContext _context;
+        protected DbSet<TEntity> _dbSet;
 
         public GenericRepository(ApplicationDbContext context)
         {
-            this.context = context;
-            dbSet = context.Set<TEntity>();
+            this._context = context;
+            this._dbSet = context.Set<TEntity>();
         }
 
-        public virtual IQueryable<TEntity> Get(
-            Expression<Func<TEntity, bool>> filter = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+        public virtual async Task<IEnumerable<TEntity>> Get(
+            Expression<Func<TEntity, bool>>? filter = null,
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
             string includeProperties = "")
         {
-            IQueryable<TEntity> query = dbSet;
+            IQueryable<TEntity> query = _dbSet;
 
             if (filter != null)
             {
@@ -41,68 +41,67 @@ namespace Cinema.DAL.Implemantations
 
             if (orderBy != null)
             {
-                return orderBy(query);
+                return await orderBy(query).ToListAsync();
             }
-            else
-            {
-                return query;
-            }
+            return await query.ToListAsync();
         }
 
         public virtual TEntity? GetByID(object id)
         {
-            return dbSet.Find(id);
+            return _dbSet.Find(id);
         }
 
         public virtual ValueTask<TEntity?> GetByIDAsync(object id)
         {
-            return dbSet.FindAsync(id);
+            return _dbSet.FindAsync(id);
         }
 
         public virtual void Insert(TEntity entity)
         {
-            dbSet.Add(entity);
+            _dbSet.Add(entity);
         }
 
-        public virtual ValueTask<EntityEntry<TEntity>> InsertAsync(TEntity entity)
+        public virtual async Task InsertAsync(TEntity entity)
         {
-            return dbSet.AddAsync(entity);
+            await _dbSet.AddAsync(entity);
         }
 
         public virtual void Delete(object id)
         {
-            TEntity? entityToDelete = dbSet.Find(id);
+            var entityToDelete = _dbSet.Find(id);
             Delete(entityToDelete);
+            _context.SaveChanges();
         }
 
-        public virtual async Task DeleteAsync(object id)
+        public virtual async Task DeleteAsync(object? id)
         {
-            TEntity entityToDelete = await dbSet.FindAsync(id);
+            var entityToDelete = await _dbSet.FindAsync(id);
             Delete(entityToDelete);
-            await context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
 
-        public virtual void Delete(TEntity entityToDelete)
+        public virtual void Delete(TEntity? entityToDelete)
         {
-            if (context.Entry(entityToDelete).State == EntityState.Detached)
+            if (_context.Entry(entityToDelete).State == EntityState.Detached)
             {
-                dbSet.Attach(entityToDelete);
+                _dbSet.Attach(entityToDelete);
             }
-            dbSet.Remove(entityToDelete);
+            _dbSet.Remove(entityToDelete);
         }
 
 
         public virtual void Update(TEntity entityToUpdate)
         {
-            dbSet.Attach(entityToUpdate);
-            context.Entry(entityToUpdate).State = EntityState.Modified;
+            _dbSet.Attach(entityToUpdate);
+            _context.Entry(entityToUpdate).State = EntityState.Modified;
+            _context.SaveChanges();
         }
 
-        public async Task UpdateAsync(TEntity entityToUpdate)
+        public virtual async Task UpdateAsync(TEntity entityToUpdate)
         {
-            dbSet.Attach(entityToUpdate);
-            context.Entry(entityToUpdate).State = EntityState.Modified;
-            await context.SaveChangesAsync();
+            _dbSet.Attach(entityToUpdate);
+            _context.Entry(entityToUpdate).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
         }
     }
 }
