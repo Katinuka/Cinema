@@ -29,7 +29,6 @@ namespace Cinema.Backend.Controllers
             }
 
             await _unitOfWork.GenreRepository.InsertAsync(genre);
-            await _unitOfWork.SaveAsync();
             return Ok();
         }
 
@@ -54,19 +53,13 @@ namespace Cinema.Backend.Controllers
                 return BadRequest();
             }
 
-            try
+            if (!ModelState.IsValid)
             {
-                await _unitOfWork.GenreRepository.UpdateAsync(updatedGenre);
-                return Ok();
+                return BadRequest(ModelState);
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (await _unitOfWork.GenreRepository.GetByIDAsync(id) == null)
-                {
-                    return NotFound();
-                }
-                throw;
-            }
+
+            await _unitOfWork.GenreRepository.UpdateAsync(id, updatedGenre);
+            return Ok();
         }
     }
 }
