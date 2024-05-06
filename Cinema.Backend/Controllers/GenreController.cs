@@ -17,11 +17,11 @@ namespace Cinema.Backend.Controllers
             _unitOfWork = unitOfWork;
         }
 
-        [HttpGet("GetCategories")]
-        public async Task<List<Genre>> GetCategoriesAsync() => await _unitOfWork.GenreRepository.Get().ToListAsync();
+        [HttpGet("GetGenres")]
+        public async Task<IEnumerable<Genre>> GetGenresAsync() => await _unitOfWork.GenreRepository.Get();
 
-        [HttpPost("AddGanre")]
-        public async Task<IActionResult> AddGanreAsync([FromBody] Genre genre)
+        [HttpPost("AddGenre")]
+        public async Task<IActionResult> AddGenreAsync([FromBody] Genre genre)
         {
             if (!ModelState.IsValid)
             {
@@ -33,11 +33,11 @@ namespace Cinema.Backend.Controllers
             return Ok();
         }
 
-        [HttpDelete("DeleteGanre/{id}")]
-        public async Task<IActionResult> DeleteGanreAsync(int id)
+        [HttpDelete("DeleteGenre/{id}")]
+        public async Task<IActionResult> DeleteGenreAsync(int id)
         {
-            var category = await _unitOfWork.GenreRepository.GetByIDAsync(id);
-            if (category == null)
+            var genre = await _unitOfWork.GenreRepository.GetByIDAsync(id);
+            if (genre == null)
             {
                 return NotFound();
             }
@@ -46,8 +46,8 @@ namespace Cinema.Backend.Controllers
             return Ok();
         }
 
-        [HttpPut("UpdateGanre/{id}")]
-        public async Task<IActionResult> UpdateGanreAsync(int id, [FromBody] Genre updatedGenre)
+        [HttpPut("UpdateGenre/{id}")]
+        public async Task<IActionResult> UpdateGenreAsync(int id, [FromBody] Genre updatedGenre)
         {
             if (id != updatedGenre.Id)
             {
