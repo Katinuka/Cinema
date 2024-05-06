@@ -35,5 +35,8 @@ public class Movie
     [Column("price")]
     public decimal Price { get; set; }
 
+    [Column("now_showing")]
+    public bool NowShowing { get; set; }
+
  
 }
