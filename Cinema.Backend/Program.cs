@@ -1,4 +1,5 @@
 
+using Cinema.Backend.Infrastructure;
 using Cinema.DAL;
 using Cinema.DAL.Context;
 using Cinema.DAL.Implemantations;
@@ -35,7 +36,9 @@ namespace Cinema.Backend
                 .AddDefaultTokenProviders();
 
             builder.Services.AddScoped(provider => new UnitOfWork(provider.GetRequiredService<ApplicationDbContext>()));
-
+            builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+            builder.Services.AddProblemDetails();
+           
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment())
@@ -50,6 +53,7 @@ namespace Cinema.Backend
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseExceptionHandler();
 
             app.MapControllers();
 

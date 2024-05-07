@@ -46,61 +46,38 @@ namespace Cinema.DAL.Implemantations
             return await query.ToListAsync();
         }
 
-        public virtual TEntity? GetByID(object id)
-        {
-            return _dbSet.Find(id);
-        }
-
         public virtual ValueTask<TEntity?> GetByIDAsync(object id)
         {
             return _dbSet.FindAsync(id);
         }
 
-        public virtual void Insert(TEntity entity)
-        {
-            _dbSet.Add(entity);
-        }
-
         public virtual async Task InsertAsync(TEntity entity)
         {
             await _dbSet.AddAsync(entity);
-        }
-
-        public virtual void Delete(object id)
-        {
-            var entityToDelete = _dbSet.Find(id);
-            Delete(entityToDelete);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
         public virtual async Task DeleteAsync(object? id)
         {
             var entityToDelete = await _dbSet.FindAsync(id);
-            Delete(entityToDelete);
-            await _context.SaveChangesAsync();
-        }
-
-        public virtual void Delete(TEntity? entityToDelete)
-        {
             if (_context.Entry(entityToDelete).State == EntityState.Detached)
             {
                 _dbSet.Attach(entityToDelete);
             }
             _dbSet.Remove(entityToDelete);
+            await _context.SaveChangesAsync();
         }
 
 
-        public virtual void Update(TEntity entityToUpdate)
+        public virtual async Task UpdateAsync(int id, TEntity entityToUpdate)
         {
-            _dbSet.Attach(entityToUpdate);
-            _context.Entry(entityToUpdate).State = EntityState.Modified;
-            _context.SaveChanges();
-        }
+            var existingEntity = await _dbSet.FindAsync(id);
+            if (existingEntity == null)
+            {
+                throw new ArgumentException($"The entity was not found in the database: id = {id} ({entityToUpdate})");
+            }
 
-        public virtual async Task UpdateAsync(TEntity entityToUpdate)
-        {
-            _dbSet.Attach(entityToUpdate);
-            _context.Entry(entityToUpdate).State = EntityState.Modified;
+            _context.Entry(existingEntity).CurrentValues.SetValues(entityToUpdate);
             await _context.SaveChangesAsync();
         }
     }
