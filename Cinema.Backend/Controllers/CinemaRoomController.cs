@@ -65,12 +65,23 @@ public class CinemaRoomController : ControllerBase
         }
     }
 
-    [HttpPut("UpdateRoom")]
-    public async Task<ActionResult> UpdateAsync([FromBody] CinemaRoom room)
+    [HttpPut("UpdateRoom/{id}")]
+    public async Task<ActionResult> UpdateAsync(int id, [FromBody] CinemaRoom room)
     {
+        
+        if (id != room.Id)
+        {
+            return BadRequest();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
         try
         {
-            await _unitOfWork.CinemaRoomRepository.UpdateAsync(room);
+            await _unitOfWork.CinemaRoomRepository.UpdateAsync(id, room);
             return Ok(room);
         }
         catch (Exception e)

@@ -1,5 +1,6 @@
 ﻿using Cinema.DAL.Models;
 using Cinema.DAL;
+using Cinema.DAL.Implemantations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,7 +22,7 @@ namespace Cinema.Backend.Controllers
 
 
         [HttpGet("GetMovies")]
-        public async Task<List<Movie>> GetMoviesAsync() => await _unitOfWork.MovieRepository.Get().ToListAsync();
+        public async Task<ActionResult<List<Movie>>> GetMoviesAsync() => Ok(await _unitOfWork.MovieRepository.Get());
 
 
         [HttpPost("AddMovie")]
@@ -58,10 +59,15 @@ namespace Cinema.Backend.Controllers
             {
                 return BadRequest();
             }
+            
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
             try
             {
-                await _unitOfWork.MovieRepository.UpdateAsync(updatedMovie);
+                await _unitOfWork.MovieRepository.UpdateAsync(id, updatedMovie);
                 return Ok();
             }
             catch (DbUpdateConcurrencyException)
