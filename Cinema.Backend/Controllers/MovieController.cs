@@ -80,5 +80,25 @@ namespace Cinema.Backend.Controllers
             }
         }
 
+
+
+
+        [HttpGet("GetActualMovies")]
+        public async Task<ActionResult<List<Movie>>> GetActualMoviesAsync()
+        {
+            return Ok(await _unitOfWork.MovieRepository.Get(m => m.NowShowing));
+        }
+
+
+        [HttpGet("GetLatestMovies")]
+        public async Task<ActionResult<List<Movie>>> GetLatestMoviesAsync()
+        {
+            var currentDate = DateTime.Now;
+            var latestDate = currentDate.AddMonths(-1);
+            return Ok(await _unitOfWork.MovieRepository.Get(m => m.ReleaseDate >= latestDate));
+        }
+
+
+
     }
 }
