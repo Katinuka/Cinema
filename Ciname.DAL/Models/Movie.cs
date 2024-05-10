@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 [Table("movie")]
 public class Movie
@@ -17,11 +18,12 @@ public class Movie
     [Column("cast")]
     public string? Cast { get; set; }
 
-   
+
+    [MaybeNull]
     [Column("genre_id")]
     public int? GenreId { get; set; } 
     [ForeignKey(nameof(GenreId))]  
-    public Genre Genre { get; set; }
+    public Genre? Genre { get; set; }
 
     [Column("description")]
     public string? Description { get; set; }
