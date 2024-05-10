@@ -80,5 +80,6 @@ namespace Cinema.DAL.Implemantations
             _context.Entry(existingEntity).CurrentValues.SetValues(entityToUpdate);
             await _context.SaveChangesAsync();
         }
+
     }
 }

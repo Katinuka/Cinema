@@ -16,7 +16,7 @@ public class Reservation
     public Session Session { get; set; }
 
     [Column("user_id")]
-    public string? ApplicationUserId { get; set; } 
+    public int? ApplicationUserId { get; set; } 
     [ForeignKey(nameof(ApplicationUserId))]
     public ApplicationUser ApplicationUser { get; set; }
 
@@ -32,5 +32,5 @@ public class Reservation
     [Column("active")]
     public bool IsActive { get; set; } = false;
 
-   
+ 
 }
