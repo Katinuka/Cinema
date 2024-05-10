@@ -1,15 +1,12 @@
 
 using Cinema.Backend.Infrastructure;
-using Cinema.DAL;
+using Cinema.BLL.HelperService;
+using Cinema.BLL.Services;
 using Cinema.DAL.Context;
 using Cinema.DAL.Implemantations;
-using Cinema.DAL.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using System.Diagnostics.SymbolStore;
 using System.Text;
 
 namespace Cinema.Backend
@@ -19,7 +16,6 @@ namespace Cinema.Backend
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
 
 
             builder.Services.AddControllers();
@@ -32,13 +28,47 @@ namespace Cinema.Backend
                 options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresDbConnection"));
             });
 
-            builder.Services.AddIdentity<ApplicationUser,IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateAudience = false,
+                    ValidateIssuer = false,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("JWT:Key").Value)),
+                    ValidateLifetime = true,
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        context.Token = context.Request.Cookies["token"];
+
+                        return Task.CompletedTask;
+                    }
+
+                };
+
+            });
+
+
+
 
             builder.Services.AddScoped(provider => new UnitOfWork(provider.GetRequiredService<ApplicationDbContext>()));
+            builder.Services.AddScoped<JWTService>();
+            builder.Services.AddScoped<PasswordHash>();
+            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            builder.Services.AddScoped<ApplicationUserServices>();
             builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
             builder.Services.AddProblemDetails();
-           
+
+
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment())
@@ -46,18 +76,22 @@ namespace Cinema.Backend
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            app.UseExceptionHandler();
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
 
-       
+
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseExceptionHandler();
+
 
             app.MapControllers();
 
+
             app.Run();
+
         }
     }
 }

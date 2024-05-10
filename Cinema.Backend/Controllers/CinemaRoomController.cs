@@ -1,12 +1,14 @@
+using Cinema.DAL;
 using Cinema.DAL.Implemantations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Cinema.Backend.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,Roles = SD.Admin)]
 public class CinemaRoomController : ControllerBase
 {
     private readonly UnitOfWork _unitOfWork;

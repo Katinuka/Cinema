@@ -31,6 +31,7 @@ namespace Cinema.DAL.Implemantations
             SeatResarvationRepository = new GenericRepository<SeatReservation>(context);
             SessionRepository = new GenericRepository<Session>(context);
             CinemaRoomRepository = new GenericRepository<CinemaRoom>(context);
+         
         }
 
 

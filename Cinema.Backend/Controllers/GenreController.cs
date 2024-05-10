@@ -3,11 +3,14 @@ using Cinema.DAL;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Cinema.DAL.Implemantations;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Cinema.Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,Roles = SD.Admin)]
     public class GenreController : ControllerBase
     {
         private readonly UnitOfWork _unitOfWork;
@@ -18,6 +21,7 @@ namespace Cinema.Backend.Controllers
         }
 
         [HttpGet("GetGenres")]
+        
         public async Task<IEnumerable<Genre>> GetGenresAsync() => await _unitOfWork.GenreRepository.Get();
 
         [HttpPost("AddGenre")]

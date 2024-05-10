@@ -3,11 +3,14 @@ using Cinema.DAL;
 using Cinema.DAL.Implemantations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Cinema.Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,Roles = $"{SD.Admin},{SD.Customer}")]
     public class MovieController : ControllerBase
     {
         private readonly ILogger<MovieController> _logger;
@@ -19,7 +22,6 @@ namespace Cinema.Backend.Controllers
             _logger = logger;
             _unitOfWork = unitOfWork;
         }
-
 
         [HttpGet("GetMovies")]
         public async Task<ActionResult<List<Movie>>> GetMoviesAsync() => Ok(await _unitOfWork.MovieRepository.Get());
@@ -59,7 +61,7 @@ namespace Cinema.Backend.Controllers
             {
                 return BadRequest();
             }
-            
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
