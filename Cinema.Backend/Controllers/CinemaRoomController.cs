@@ -84,6 +84,7 @@ public class CinemaRoomController : ControllerBase
         try
         {
             await _unitOfWork.CinemaRoomRepository.UpdateAsync(id, room);
+            await _unitOfWork.SaveAsync();
             return Ok(room);
         }
         catch (Exception e)
@@ -104,6 +105,7 @@ public class CinemaRoomController : ControllerBase
         try
         {
             await _unitOfWork.CinemaRoomRepository.DeleteAsync(id);
+            await _unitOfWork.SaveAsync();
             return Ok();
         }
         catch (Exception e)

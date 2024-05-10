@@ -12,13 +12,10 @@ namespace Cinema.Backend.Controllers
     [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme,Roles = SD.Admin)]
     public class SessionController : ControllerBase
     {
-        private readonly ILogger<SessionController> _logger;
         private readonly UnitOfWork _unitOfWork;
 
-        public SessionController(ILogger<SessionController> logger,
-            UnitOfWork unitOfWork)
+        public SessionController(UnitOfWork unitOfWork)
         {
-            _logger = logger;
             _unitOfWork = unitOfWork;
         }
 
@@ -65,6 +62,7 @@ namespace Cinema.Backend.Controllers
             }
 
             await _unitOfWork.SessionRepository.DeleteAsync(id);
+            await _unitOfWork.SaveAsync();
             return Ok();
         }
 
@@ -79,6 +77,7 @@ namespace Cinema.Backend.Controllers
             try
             {
                 await _unitOfWork.SessionRepository.UpdateAsync(id, updatedSession);
+                await _unitOfWork.SaveAsync();
                 return Ok();
             }
             catch (DbUpdateConcurrencyException)

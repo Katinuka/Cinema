@@ -33,6 +33,7 @@ namespace Cinema.Backend.Controllers
             }
 
             await _unitOfWork.GenreRepository.InsertAsync(genre);
+            await _unitOfWork.SaveAsync();
             return Ok();
         }
 
@@ -46,6 +47,7 @@ namespace Cinema.Backend.Controllers
             }
 
             await _unitOfWork.GenreRepository.DeleteAsync(id);
+            await _unitOfWork.SaveAsync();
             return Ok();
         }
 
@@ -63,6 +65,7 @@ namespace Cinema.Backend.Controllers
             }
 
             await _unitOfWork.GenreRepository.UpdateAsync(id, updatedGenre);
+            await _unitOfWork.SaveAsync();
             return Ok();
         }
     }

@@ -17,7 +17,8 @@ namespace Cinema.Backend
         {
             var builder = WebApplication.CreateBuilder(args);
 
-
+            builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+            builder.Services.AddProblemDetails();
             builder.Services.AddControllers();
 
             builder.Services.AddEndpointsApiExplorer();
@@ -65,8 +66,6 @@ namespace Cinema.Backend
             builder.Services.AddScoped<PasswordHash>();
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             builder.Services.AddScoped<ApplicationUserServices>();
-            builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-            builder.Services.AddProblemDetails();
 
 
             var app = builder.Build();

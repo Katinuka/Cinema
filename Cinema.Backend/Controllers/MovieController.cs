@@ -13,13 +13,10 @@ namespace Cinema.Backend.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,Roles = $"{SD.Admin},{SD.Customer}")]
     public class MovieController : ControllerBase
     {
-        private readonly ILogger<MovieController> _logger;
         private readonly UnitOfWork _unitOfWork;
 
-        public MovieController(ILogger<MovieController> logger,
-            UnitOfWork unitOfWork)
+        public MovieController(UnitOfWork unitOfWork)
         {
-            _logger = logger;
             _unitOfWork = unitOfWork;
         }
 
@@ -51,6 +48,7 @@ namespace Cinema.Backend.Controllers
             }
 
             await _unitOfWork.MovieRepository.DeleteAsync(id);
+            await _unitOfWork.SaveAsync();
             return Ok();
         }
 
@@ -70,6 +68,7 @@ namespace Cinema.Backend.Controllers
             try
             {
                 await _unitOfWork.MovieRepository.UpdateAsync(id, updatedMovie);
+                await _unitOfWork.SaveAsync();
                 return Ok();
             }
             catch (DbUpdateConcurrencyException)

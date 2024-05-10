@@ -54,7 +54,6 @@ namespace Cinema.DAL.Implemantations
         public virtual async Task InsertAsync(TEntity entity)
         {
             await _dbSet.AddAsync(entity);
-            await _context.SaveChangesAsync();
         }
 
         public virtual async Task DeleteAsync(object? id)
@@ -65,7 +64,6 @@ namespace Cinema.DAL.Implemantations
                 _dbSet.Attach(entityToDelete);
             }
             _dbSet.Remove(entityToDelete);
-            await _context.SaveChangesAsync();
         }
 
 
@@ -78,7 +76,6 @@ namespace Cinema.DAL.Implemantations
             }
 
             _context.Entry(existingEntity).CurrentValues.SetValues(entityToUpdate);
-            await _context.SaveChangesAsync();
         }
 
     }
