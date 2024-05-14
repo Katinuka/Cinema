@@ -30,7 +30,10 @@ public class Movie
     public int DurationTime { get; set; }
 
     [Column("release_date")]
-    public DateTime ReleaseDate { get; set; }
+    public DateTimeOffset ReleaseDate { get; set; }
+
+    [NotMapped]
+    public DateTimeOffset ReleaseDateUtc => ReleaseDate.ToUniversalTime();
 
     [Column("price")]
     public decimal Price { get; set; }
