@@ -13,18 +13,15 @@ namespace Cinema.Backend.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,Roles = $"{SD.Admin},{SD.Customer}")]
     public class MovieController : ControllerBase
     {
-        private readonly ILogger<MovieController> _logger;
         private readonly UnitOfWork _unitOfWork;
 
-        public MovieController(ILogger<MovieController> logger,
-            UnitOfWork unitOfWork)
+        public MovieController(UnitOfWork unitOfWork)
         {
-            _logger = logger;
             _unitOfWork = unitOfWork;
         }
 
         [HttpGet("GetMovies")]
-        public async Task<ActionResult<List<Movie>>> GetMoviesAsync() => Ok(await _unitOfWork.MovieRepository.Get());
+        public async Task<ActionResult<List<Movie>>> GetMoviesAsync() => Ok(await _unitOfWork.MovieRepository.Get(includeProperties:"Genre"));
 
 
         [HttpPost("AddMovie")]
@@ -51,6 +48,7 @@ namespace Cinema.Backend.Controllers
             }
 
             await _unitOfWork.MovieRepository.DeleteAsync(id);
+            await _unitOfWork.SaveAsync();
             return Ok();
         }
 
@@ -70,6 +68,7 @@ namespace Cinema.Backend.Controllers
             try
             {
                 await _unitOfWork.MovieRepository.UpdateAsync(id, updatedMovie);
+                await _unitOfWork.SaveAsync();
                 return Ok();
             }
             catch (DbUpdateConcurrencyException)
@@ -88,16 +87,18 @@ namespace Cinema.Backend.Controllers
         [HttpGet("GetActualMovies")]
         public async Task<ActionResult<List<Movie>>> GetActualMoviesAsync()
         {
-            return Ok(await _unitOfWork.MovieRepository.Get(m => m.NowShowing));
+            return Ok(await _unitOfWork.MovieRepository
+                .Get(filter: m => m.NowShowing, includeProperties: "Genre"));
         }
 
 
         [HttpGet("GetLatestMovies")]
         public async Task<ActionResult<List<Movie>>> GetLatestMoviesAsync()
         {
-            var currentDate = DateTime.Now;
+            var currentDate = DateTime.UtcNow;
             var latestDate = currentDate.AddMonths(-1);
-            return Ok(await _unitOfWork.MovieRepository.Get(m => m.ReleaseDate >= latestDate));
+            return Ok(await _unitOfWork.MovieRepository
+                .Get(filter: m => m.ReleaseDate.UtcDateTime >= latestDate, includeProperties: "Genre"));
         }
 
 

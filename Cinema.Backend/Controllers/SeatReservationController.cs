@@ -1,32 +1,42 @@
-﻿using Cinema.DAL.Implemantations; 
+﻿using Cinema.DAL;
+using Cinema.DAL.Implemantations; 
 using Cinema.DAL.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Cinema.Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = $"{SD.Admin}")]
     public class SeatReservationController : ControllerBase
     {
-        private readonly ISeatReservationRepository _seatReservationRepository;
+        private readonly UnitOfWork _unitOfWork;
 
-        public SeatReservationController(ISeatReservationRepository seatReservationRepository)
+        public SeatReservationController(UnitOfWork unitOfWork)
         {
-            _seatReservationRepository = seatReservationRepository;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<SeatReservation>>> GetAllAsync()
-        {
-            var seatReservations = await _seatReservationRepository.GetAllAsync().ToListAsync();
-            return Ok(seatReservations); 
-        }
-
+        public async Task<ActionResult<List<SeatReservation>>> GetAllAsync() => Ok(await _unitOfWork.SeatResarvationRepository
+            .Get(includeProperties:
+                "Reservation," +
+                "Reservation.Session," +
+                "Reservation.Session.CinemaRoom," +
+                "Reservation.Session.Movie," +
+                "Reservation.Session.Movie.Genre," +
+                "Reservation.ApplicationUser," +
+                "Session," +
+                "Session.CinemaRoom," +
+                "Session.Movie," +
+                "Session.Movie.Genre")); 
+        
         [HttpGet("{id}")] 
         public async Task<ActionResult<SeatReservation>> GetByIdAsync(int id)
         {
-            var seatReservation = await _seatReservationRepository.GetByIdAsync(id);
+            var seatReservation = await _unitOfWork.SeatResarvationRepository.GetByIDAsync(id);
             if (seatReservation == null)
             {
                 return NotFound();
@@ -42,8 +52,8 @@ namespace Cinema.Backend.Controllers
                 return BadRequest(ModelState);
             }
 
-            await _seatReservationRepository.InsertAsync(model);
-            await _seatReservationRepository.SaveAsync(); 
+            await _unitOfWork.SeatResarvationRepository.InsertAsync(model);
+            await _unitOfWork.SaveAsync();
 
             return CreatedAtRoute("GetSeatReservation", new { id = model.Id }, model); 
         }
@@ -61,37 +71,23 @@ namespace Cinema.Backend.Controllers
                 return BadRequest(ModelState);
             }
 
-            try
-            {
-                await _seatReservationRepository.UpdateAsync(model);
-                await _seatReservationRepository.SaveAsync();
-            }
-            catch (DbUpdateConcurrencyException) 
-            {
-                if (!await _seatReservationRepository.ExistsAsync(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw; 
-                }
-            }
 
-            return NoContent(); 
+            await _unitOfWork.SeatResarvationRepository.UpdateAsync(id, model);
+            await _unitOfWork.SaveAsync();
+            return Ok();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            var seatReservation = await _seatReservationRepository.GetByIdAsync(id);
+            var seatReservation = await _unitOfWork.SeatResarvationRepository.GetByIDAsync(id);
             if (seatReservation == null)
             {
                 return NotFound();
             }
 
-            await _seatReservationRepository.DeleteAsync(id);
-            await _seatReservationRepository.SaveAsync();
+            await _unitOfWork.SeatResarvationRepository.DeleteAsync(id);
+            await _unitOfWork.SaveAsync();
 
             return NoContent();
         }

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 
 namespace Cinema.DAL.Models
@@ -14,15 +15,17 @@ namespace Cinema.DAL.Models
         [Column("number_of_seat")]
         public int? NumberOfSeat { get; set; }
 
+        [MaybeNull]
         [Column("reservation_id")]
         public int? ReservationId { get; set; }
         [ForeignKey(nameof(ReservationId))]
-        public Reservation Reservation { get; set; }
+        public Reservation? Reservation { get; set; }
 
+        [MaybeNull]
         [Column("session_id")]
         public int? SessionId { get; set; }
         [ForeignKey(nameof(SessionId))]
-        public Session Session { get; set; }
+        public Session? Session { get; set; }
 
 
     }
