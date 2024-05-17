@@ -39,6 +39,31 @@ namespace Cinema.Backend.Controllers
         }
 
 
+        [HttpGet("GetSessionsByPrice/{maxPrice}")]
+        public async Task<IEnumerable<Session>> GetSessionsByPriceAsync(decimal maxPrice)
+        {
+            var sessions = await _unitOfWork.SessionRepository.Get(
+                includeProperties: "Movie",
+                filter: s => s.Movie.Price <= maxPrice
+            );
+
+            return sessions;
+        }
+
+        [HttpGet("GetSessionsByDuration")]
+        public async Task<IEnumerable<Session>> GetSessionsByDurationAsync(int minDuration, int maxDuration)
+        {
+            var sessions = await _unitOfWork.SessionRepository.Get(
+                includeProperties: "Movie",
+                filter: s => s.Movie.DurationTime >= minDuration && s.Movie.DurationTime <= maxDuration
+            );
+
+            return sessions;
+        }
+
+
+
+
 
 
         [HttpPost("AddSession")]
