@@ -21,15 +21,16 @@ namespace Cinema.Backend.Controllers
 
 
         [HttpGet("GetSessions")]
-        public async Task<IEnumerable<Session>> GetSessionsAsync() => await _unitOfWork.SessionRepository.Get();
+        public async Task<IEnumerable<Session>> GetSessionsAsync() => await _unitOfWork.SessionRepository
+            .Get(includeProperties: "CinemaRoom,Movie,Movie.Genre");
 
 
         [HttpGet("GetSessionsByGenre/{genre}")]
         public async Task<IEnumerable<Session>> GetSessionsByGenreAsync(string genre)
         {
             var sessions = await _unitOfWork.SessionRepository.Get(
-                includeProperties: "Movie,Movie.Genre",
-                filter: s => s.Movie.Genre.Name == genre
+                includeProperties: "CinemaRoom,Movie,Movie.Genre",
+                filter: s => s.Movie.Genre.Name.ToLower() == genre.ToLower()
             );
 
             return sessions;

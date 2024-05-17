@@ -22,7 +22,8 @@ namespace Cinema.Backend.Controllers
 
 
         [HttpGet("GetReservations")]
-        public async Task<IEnumerable<Reservation>> GetReservationsAsync() => await _unitOfWork.ReservationRepository.Get();
+        public async Task<IEnumerable<Reservation>> GetReservationsAsync() => await _unitOfWork.ReservationRepository
+            .Get(includeProperties: "Session,Session.CinemaRoom,Session.Movie,Session.Movie.Genre,ApplicationUser");
 
 
         [HttpPost("AddReservation")]

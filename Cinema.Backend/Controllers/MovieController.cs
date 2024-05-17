@@ -21,7 +21,7 @@ namespace Cinema.Backend.Controllers
         }
 
         [HttpGet("GetMovies")]
-        public async Task<ActionResult<List<Movie>>> GetMoviesAsync() => Ok(await _unitOfWork.MovieRepository.Get());
+        public async Task<ActionResult<List<Movie>>> GetMoviesAsync() => Ok(await _unitOfWork.MovieRepository.Get(includeProperties:"Genre"));
 
 
         [HttpPost("AddMovie")]
@@ -87,16 +87,18 @@ namespace Cinema.Backend.Controllers
         [HttpGet("GetActualMovies")]
         public async Task<ActionResult<List<Movie>>> GetActualMoviesAsync()
         {
-            return Ok(await _unitOfWork.MovieRepository.Get(m => m.NowShowing));
+            return Ok(await _unitOfWork.MovieRepository
+                .Get(filter: m => m.NowShowing, includeProperties: "Genre"));
         }
 
 
         [HttpGet("GetLatestMovies")]
         public async Task<ActionResult<List<Movie>>> GetLatestMoviesAsync()
         {
-            var currentDate = DateTime.Now;
+            var currentDate = DateTime.UtcNow;
             var latestDate = currentDate.AddMonths(-1);
-            return Ok(await _unitOfWork.MovieRepository.Get(m => m.ReleaseDate >= latestDate));
+            return Ok(await _unitOfWork.MovieRepository
+                .Get(filter: m => m.ReleaseDate.UtcDateTime >= latestDate, includeProperties: "Genre"));
         }
 
 

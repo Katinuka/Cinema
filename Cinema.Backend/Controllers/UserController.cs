@@ -70,7 +70,7 @@ namespace Cinema.Backend.Controllers
                 return StatusCode(500, $"Something went wrong try again:{ex.Message}");
             }
         }
-        [HttpGet("Login")]
+        [HttpPost("Login")]
         public async Task<ActionResult<LoginRequestDTO>> Login([FromBody] LoginDTO loginDTO)
         {
             var user = await _applicationUserServices.GetUserByEmailAsync(loginDTO.Email);

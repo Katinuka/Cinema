@@ -33,6 +33,48 @@ namespace Cinema.DAL.Context
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Movie>()
+                .HasOne(it => it.Genre)
+                .WithMany()
+                .HasForeignKey(it => it.GenreId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Session>()
+                .HasOne(it => it.Movie)
+                .WithMany()
+                .HasForeignKey(it => it.MovieId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Session>()
+                .HasOne(it => it.CinemaRoom)
+                .WithMany()
+                .HasForeignKey(it => it.CinemaRoomId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Reservation>()
+                .HasOne(it => it.Session)
+                .WithMany()
+                .HasForeignKey(it => it.SessionId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Reservation>()
+                .HasOne(it => it.ApplicationUser)
+                .WithMany()
+                .HasForeignKey(it => it.ApplicationUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<SeatReservation>()
+                .HasOne(it => it.Reservation)
+                .WithMany()
+                .HasForeignKey(it => it.ReservationId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<SeatReservation>()
+                .HasOne(it => it.Session)
+                .WithMany()
+                .HasForeignKey(it => it.SessionId)
+                .OnDelete(DeleteBehavior.SetNull);
+
 
             //Genres
             modelBuilder.Entity<Genre>().HasData(
@@ -99,7 +141,6 @@ namespace Cinema.DAL.Context
                     NowShowing = true
                 }
             );
-
 
             //Rooms
             modelBuilder.Entity<CinemaRoom>().HasData(
@@ -168,7 +209,7 @@ namespace Cinema.DAL.Context
                     LastName = "Doe",
                     FirstName = "John",
                     Email = "john.doe@example.com",
-                    Password = "password123",
+                    Password = "$2a$11$r5Ibl/l0kOGDZv/ihgepie1G0hcTA8Bb51RaTSNptysM6EXzkXr6u",  // password123
                     PhoneNumber = "1234567890",
                     Role = "User"
                 },
@@ -178,7 +219,7 @@ namespace Cinema.DAL.Context
                     LastName = "Smith",
                     FirstName = "Jane",
                     Email = "jane.smith@example.com",
-                    Password = "password456",
+                    Password = "$2a$11$nSB6o2EjgF5tvD3q76/up.oHvFIDklRmUK/gAFsGQIjMFiqSWimR.",  // password456
                     PhoneNumber = "0987654321",
                     Role = "Admin"
                 },
@@ -188,7 +229,7 @@ namespace Cinema.DAL.Context
                     LastName = "Johnson",
                     FirstName = "Michael",
                     Email = "michael.johnson@example.com",
-                    Password = "password789",
+                    Password = "$2a$11$5ou33R/J500lRf3XGjynGu6woXpX0uoHALgDHTu3Bt8ybM1WPFVW.",  // password789
                     PhoneNumber = "5551234567",
                     Role = "User"
                 },
@@ -198,7 +239,7 @@ namespace Cinema.DAL.Context
                     LastName = "Williams",
                     FirstName = "Emily",
                     Email = "emily.williams@example.com",
-                    Password = "passwordABC",
+                    Password = "$2a$11$Y9xnlVeuTYN0WsYYLzLgVuDb0mPXgqRpecoJq5btn.XHGD4Gz50SG",  // passwordABC
                     PhoneNumber = "9876543210",
                     Role = "User"
                 }
