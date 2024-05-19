@@ -20,17 +20,15 @@ public class MailjetEmailSender
 
     public async Task SendEmailAsync(string toEmail, string subject, string body)
     {
-
         MailjetClient client = new MailjetClient(_apiKey, _apiSecret);
         MailjetRequest request = new MailjetRequest
             {
                 Resource = Send.Resource,
             }
             .Property(Send.FromEmail, "yaroslavkuzenko02@gmail.com")
-            .Property(Send.FromName, "Yaroslav Kuzenko")
+            .Property(Send.FromName, "Practice Cinema")
             .Property(Send.Subject, subject)
-            .Property(Send.TextPart, "Dear passenger, welcome to Mailjet! May the delivery force be with you!")
-            .Property(Send.HtmlPart, "<h3>Dear passenger, welcome to <a href=\"https://www.mailjet.com/\">Mailjet</a>!<br />May the delivery force be with you!")
+            .Property(Send.HtmlPart, $"$<p>{body}</p>")
             .Property(Send.Recipients, new JArray {
                 new JObject {
                     {"Email", toEmail}
