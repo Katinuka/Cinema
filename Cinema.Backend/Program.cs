@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Cinema.BLL.EmailSender;
 
 namespace Cinema.Backend
 {
@@ -66,6 +67,7 @@ namespace Cinema.Backend
             builder.Services.AddScoped<PasswordHash>();
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             builder.Services.AddScoped<ApplicationUserServices>();
+            builder.Services.AddScoped<MailjetEmailSender>();
 
 
             var app = builder.Build();
