@@ -51,6 +51,19 @@ namespace Cinema.DAL.Implemantations
             return _dbSet.FindAsync(id);
         }
 
+        public virtual async Task<TEntity> GetByIDAsync(object id, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            IQueryable<TEntity> query = _dbSet;
+
+            foreach (var includeProperty in includeProperties)
+            {
+                query = query.Include(includeProperty);
+            }
+
+            return await query.SingleOrDefaultAsync(e => EF.Property<int>(e, "Id") == (int)id);
+        }
+
+
         public virtual async Task InsertAsync(TEntity entity)
         {
             await _dbSet.AddAsync(entity);
