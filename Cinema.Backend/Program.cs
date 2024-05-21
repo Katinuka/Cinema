@@ -9,6 +9,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Cinema.BLL.EmailSender;
+using PdfSharp.Charting;
+using Cinema.BLL.TicketPdfGenerator;
+using PdfSharp.Fonts;
 
 namespace Cinema.Backend
 {
@@ -68,6 +71,9 @@ namespace Cinema.Backend
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             builder.Services.AddScoped<ApplicationUserServices>();
             builder.Services.AddScoped<MailjetEmailSender>();
+
+            builder.Services.AddScoped<TicketPdfGenerator>();
+            GlobalFontSettings.FontResolver = new CustomFontResolver();
 
 
             var app = builder.Build();
