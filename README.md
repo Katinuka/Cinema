@@ -1,8 +1,8 @@
 #  SoftServe Practice 
 
-**Thema: Cinema**
+**Theme: Cinema**
 
-**Technologies Stack**
+**Technology Stack**
 
 .NET 8 
 PostgreSQL
@@ -10,5 +10,5 @@ EF CORE (ORM)
 
 
 
-**Conceptual model for Database**
+**Conceptual data model**
 ![alt text](image-2.png)
